@@ -13,8 +13,12 @@ import { db } from "../firebase";
 
 import { TodoContext } from "../TodoContext";
 
+import { useAuth } from "../Auth";
+
 const TodoForm = () => {
   const inputAreaRef = useRef();
+
+  const { currentUser } = useAuth();
 
   const { showAlert, todo, setTodo } = useContext(TodoContext);
 
@@ -36,6 +40,7 @@ const TodoForm = () => {
       const collectionRef = collection(db, "todos");
       const docRef = await addDoc(collectionRef, {
         ...todo,
+        email: currentUser.email,
         timestamp: serverTimestamp(),
       });
       setTodo({ title: "", detail: "" });

@@ -4,15 +4,34 @@ import Todo from "./Todo";
 
 import { db } from "../firebase";
 
-import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
+import {
+  collection,
+  query,
+  onSnapshot,
+  orderBy,
+  where,
+} from "firebase/firestore";
 
-const TodoList = () => {
+import { useAuth } from "../Auth";
+
+const TodoList = ({ todoProps }) => {
+  const { currentUser } = useAuth();
   const [todos, setTodos] = useState([]);
+
+  // server side code
+  useEffect(() => {
+    setTodos(JSON.parse(todoProps));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const collectionRef = collection(db, "todos");
 
-    const q = query(collectionRef, orderBy("timestamp", "desc"));
+    const q = query(
+      collectionRef,
+      where("email", "==", currentUser?.email),
+      orderBy("timestamp", "desc")
+    );
 
     const unsubscribe = onSnapshot(q, async (querySnapshot) => {
       setTodos(
@@ -25,6 +44,7 @@ const TodoList = () => {
 
       return await unsubscribe;
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
